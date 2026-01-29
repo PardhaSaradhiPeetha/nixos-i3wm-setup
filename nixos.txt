@@ -1,0 +1,200 @@
+# PRIME OFFLOADING 
+# Run apps on NVIDIA GPU explicitly
+# nvidia-offload mpv video.mkv
+# nvidia-offload vscodium
+#
+# Default behavior:
+# - Intel GPU -> for desktop, i3, browsers, terminals
+# - NVIDIA GPU is used only with `nvidia-offload`
+
+#POWER MANAGEMENT:
+# powerprofilesctl set power-saver/balanced/performance
+
+
+{ config, pkgs, lib, ... }:
+
+{
+  imports = [ ./hardware-configuration.nix ];
+
+  system.stateVersion = "25.11";
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.blacklistedKernelModules = [ "nouveau" ];
+  boot.kernelPackages = pkgs.linuxPackages;
+  boot.kernelParams = [ "quiet" "nvidia-drm.modeset=1" ];
+  boot.kernel.sysctl = { "vm.overcommit_memory" = 1;  };
+  
+  systemd.oomd.enable = true;
+      
+  networking.hostName = "loq";
+  networking.networkmanager.enable = true;
+
+  time.timeZone = "Asia/Kolkata";
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  documentation = {
+    enable = false;
+    nixos.enable = false;
+    man.enable = false;
+    info.enable = false;
+  };
+
+  nixpkgs.config.allowUnfree = true;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 4d";
+  };
+  nix.settings = {
+    auto-optimise-store = true;
+    max-jobs = "auto";
+    cores = 0;
+  };
+  
+  services.xserver = {
+    enable = true;
+    videoDrivers = [ "nvidia" ];
+    excludePackages = with pkgs; [ xterm ];
+    xkb.layout = "us";
+    windowManager.i3.enable = true;
+  };
+
+  services.displayManager.ly = {
+    enable = true;
+    settings = {
+      allowRoot = false;
+      defaultUser = "ps";
+      hideSession = true;
+      defaultSession = "i3";
+      animation = "none";
+      bigclock = true;
+      tty = 1;
+    };
+  };
+
+  services.libinput = {
+    enable = true;
+    touchpad.tapping = true;
+  };
+
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    alsa.enable = true;
+    wireplumber.enable = true;
+  };
+
+  security.rtkit.enable = true;
+  security.polkit.enable = true;
+
+  services.locate.enable = false;
+  services.dbus.enable = true;
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+  services.printing.enable = false;
+  services.power-profiles-daemon.enable = true;
+  services.thermald.enable = true;
+
+  services.logind.settings.Login = {
+    IdleAction = "suspend";
+    IdleActionSec = "5min";
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchDocked = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+  };
+
+  services.journald.extraConfig = ''
+    SystemMaxUse=30M
+    RuntimeMaxUse=20M
+  '';
+
+  hardware.bluetooth.enable = true;
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+    ];
+  };
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement = {
+      enable = true;
+      finegrained = true;
+    };
+
+    open = false;
+    nvidiaSettings = false;
+
+    prime = {
+      offload.enable = true;
+      offload.enableOffloadCmd = true;
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+  };
+
+  fonts = {
+    packages = with pkgs; [ nerd-fonts.fira-code ];
+    fontconfig.enable = true;
+  };
+
+  users.users.ps = {
+    isNormalUser = true;
+    description = "Pardha Saradhi";
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+  };
+
+  programs.nano.enable = false;
+  environment.variables = {
+    EDITOR = "micro";
+    VISUAL = "micro";
+    TERMINAL = "alacritty";
+  };  
+
+  environment.systemPackages = with pkgs; [
+
+   # Core
+   brightnessctl
+   git
+   curl
+   zip
+   unzip
+ 
+   # i3 / desktop
+   alacritty
+   rofi
+   i3blocks
+   i3lock-color
+   xss-lock
+   xclip
+   feh
+   maim
+ 
+   # Media
+   mpv
+   guvcview
+   ffmpeg
+   imv
+   mupdf
+   bluetuith
+ 
+   # Apps
+   brave
+   vscodium
+   micro
+   fastfetchMinimal
+   nodejs_24
+  ];
+
+  services.mysql = {
+      enable = true;
+      package = pkgs.mysql80;
+  };
+  services.mongodb = {
+    enable = true;
+    package = pkgs.mongodb-ce; # CE server (mongod)
+  };
+ 
+}
