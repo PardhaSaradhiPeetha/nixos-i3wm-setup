@@ -1,0 +1,39 @@
+[menu]
+interval=once
+command=sh -c '[ "$BLOCK_BUTTON" = "1" ] && rofi -show drun -config ~/.config/rofi/config.rasi; echo " "'
+
+[time]
+interval=60
+command=date +"%H:%M %d-%m-%Y"
+
+[wifi]
+interval=5
+command=sh -c '[ "$BLOCK_BUTTON" = "1" ] && alacritty -e nmtui; ssid=$(nmcli -t -f ACTIVE,SSID dev wifi | grep "^yes" | cut -d: -f2); [ -n "$ssid" ] && echo "  $ssid " || echo " 󰖪 "'
+
+[ethernet]
+interval=5
+command=sh -c '[ "$BLOCK_BUTTON" = "1" ] && alacritty -e nmtui; ip link show enp7s0 | grep -q "state UP" && echo " 󰈀 " || echo " 󰈂 "'
+
+[bluetooth]
+interval=5
+command=sh -c '[ "$BLOCK_BUTTON" = "1" ] && alacritty -e bluetuith; name=$(bluetoothctl info 2>/dev/null | awk -F": " "/Name/ {print \$2}"); [ -n "$name" ] && echo "  $name " || echo " 󰂲 "'
+
+[volume]
+interval=1
+command=sh -c 'case "$BLOCK_BUTTON" in 1) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;; 4) wpctl set-volume --limit 1.2 @DEFAULT_AUDIO_SINK@ 5%+ ;; 5) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;; esac; out=$(timeout 0.2 wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null) || { echo "󰝟"; exit 0; }; echo "$out" | grep -q MUTED && echo "󰝟 MUTE" || echo "󰕾 $(awk "{printf \"%d%%\", \$2*100}" <<< "$out")"'
+
+[mic]
+interval=1
+command=sh -c 'case "$BLOCK_BUTTON" in 1) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;; 4) wpctl set-volume --limit 1.0 @DEFAULT_AUDIO_SOURCE@ 5%+ ;; 5) wpctl set-volume --limit 1.0 @DEFAULT_AUDIO_SOURCE@ 5%- ;; esac; out=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null); echo "$out" | grep -q MUTED && echo "  " || echo "  $(awk "{printf \"%d%%\", \$2*100}" <<< "$out")"'
+
+[brightness]
+interval=once
+command=sh -c 'case "$BLOCK_BUTTON" in 4) brightnessctl set +5% >/dev/null ;; 5) brightnessctl set 5%- >/dev/null ;; esac; brightnessctl | awk "/Current/ {print \"󰃠 \" \$4}"'
+
+[usb]
+interval=5
+command=sh -c 'd=$(lsblk -ndo TRAN,MODEL | awk '\''$1=="usb"{print $2; exit}'\''); [ -n "$d" ] && echo "󰕓 $d" || echo " 󰕓 0 "'
+
+[battery]
+interval=30
+command=sh -c 'cap=$(cat /sys/class/power_supply/BAT1/capacity); ac=$(cat /sys/class/power_supply/ACAD/online); if [ "$ac" = "0" ] && [ "$BLOCK_BUTTON" = "1" ]; then cur=$(powerprofilesctl get); [ "$cur" = "power-saver" ] && powerprofilesctl set balanced || powerprofilesctl set power-saver; fi; mode=$(powerprofilesctl get); if [ "$ac" = "1" ]; then echo "  $cap% "; else [ "$mode" = "power-saver" ] && echo "󱤅 $cap% " || echo "󰁹 $cap% "; fi'

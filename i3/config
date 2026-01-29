@@ -1,0 +1,111 @@
+set $mod Mod4
+set $terminal alacritty
+
+set $font_name FiraCode Nerd Font
+set $font_size 10
+font pango:$font_name $font_size
+
+set $gap_inner 6
+set $gap_outer 4
+
+gaps inner $gap_inner
+gaps outer $gap_outer
+smart_gaps off
+
+set $bg #2e3440
+set $fg #d8dee9
+set $accent #88c0d0
+
+default_border pixel 3
+default_floating_border pixel 3
+
+client.focused          #81a1c1 #2e3440 #eceff4 #81a1c1 #81a1c1
+client.focused_inactive #4c566a #2e3440 #d8dee9 #4c566a #4c566a
+client.unfocused        #2e3440 #2e3440 #d8dee9 #2e3440 #2e3440
+
+set $wallpaper ~/.config/i3/wallpaper.png
+exec --no-startup-id feh -no-fehbg --bg-fill $wallpaper
+
+set $lock ~/.config/i3/lock.sh
+exec --no-startup-id xss-lock --transfer-sleep-lock -- $lock
+
+floating_modifier $mod
+
+bindsym $mod+Return exec --no-startup-id $terminal
+bindsym $mod+l exec --no-startup-id $lock
+bindsym $mod+q kill
+
+bindsym $mod+f fullscreen toggle
+bindsym $mod+space floating toggle
+
+bindsym $mod+n exec --no-startup-id $terminal -e nmtui
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+Tab workspace back_and_forth
+
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+bindsym $mod+r mode "resize"
+mode "resize" {
+    bindsym Left resize shrink width 10 px
+    bindsym Right resize grow width 10 px
+    bindsym Up resize shrink height 10 px
+    bindsym Down resize grow height 10 px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && pkill -RTMIN+10 i3blocks
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -RTMIN+10 i3blocks
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -RTMIN+10 i3blocks
+
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 10%-
+
+set $screenshot_dir ~/Pictures
+bindsym Print exec --no-startup-id maim -s $screenshot_dir/$(date +%F_%H-%M-%S).png
+bindsym Shift+Print exec --no-startup-id maim $screenshot_dir/$(date +%F_%H-%M-%S).png
+
+bindsym $mod+Shift+r reload
+bindsym $mod+Shift+e exec i3-msg exit
+
+bindsym Mod1+Shift+P exec --no-startup-id systemctl poweroff
+bindsym Mod1+Shift+R exec --no-startup-id systemctl reboot
+bindsym Mod1+Shift+S exec --no-startup-id systemctl suspend
+
+bar {
+    position top
+    font pango:$font_name 13
+	status_command i3blocks -c ~/.config/i3blocks/config
+	padding 5
+    colors {
+        background #2e3440
+        statusline #d8dee9
+        separator  #4c566a
+    
+        focused_workspace  #88c0d0 #88c0d0 #2e3440
+        active_workspace   #434c5e #434c5e #eceff4
+        inactive_workspace #2e3440 #2e3440 #d8dee9
+        urgent_workspace   #bf616a #bf616a #eceff4
+        binding_mode       #bf616a #bf616a #eceff4
+    }
+}
