@@ -95,6 +95,7 @@
   services.printing.enable = false;
   services.power-profiles-daemon.enable = true;
   services.thermald.enable = true;
+  services.picom.enable = true;
 
   services.logind.settings.Login = {
     IdleAction = "suspend";
@@ -151,6 +152,9 @@
     EDITOR = "micro";
     VISUAL = "micro";
     TERMINAL = "alacritty";
+
+    GDK_BACKEND = "x11";
+    GTK_USE_PORTAL = "0";
   };  
 
   environment.systemPackages = with pkgs; [
