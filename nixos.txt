@@ -177,7 +177,6 @@
    guvcview
    ffmpeg
    imv
-   mupdf
    bluetuith
  
    # Apps
