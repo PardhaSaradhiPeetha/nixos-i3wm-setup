@@ -44,7 +44,7 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 4d";
+    options = "--delete-older-than 3d";
   };
   nix.settings = {
     auto-optimise-store = true;
@@ -95,6 +95,7 @@
   services.printing.enable = false;
   services.power-profiles-daemon.enable = true;
   services.thermald.enable = true;
+  services.picom.enable = true;
 
   services.logind.settings.Login = {
     IdleAction = "suspend";
@@ -187,16 +188,6 @@
    vscodium
    micro
    fastfetchMinimal
-   nodejs_24
   ];
-
-  services.mysql = {
-      enable = true;
-      package = pkgs.mysql80;
-  };
-  services.mongodb = {
-    enable = true;
-    package = pkgs.mongodb-ce; # CE server (mongod)
-  };
  
 }
