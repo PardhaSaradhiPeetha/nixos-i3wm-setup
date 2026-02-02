@@ -29,7 +29,7 @@ exec --no-startup-id feh -no-fehbg --bg-fill $wallpaper
 set $lock ~/.config/i3/lock.sh
 exec --no-startup-id xss-lock --transfer-sleep-lock -- $lock
 
-exec --no-startup-id picom --config ~/.config/picom/conf --experimental-backends
+exec --no-startup-id picom --config ~/.config/picom/conf
 
 floating_modifier $mod
 
