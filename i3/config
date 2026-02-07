@@ -29,8 +29,7 @@ exec --no-startup-id feh -no-fehbg --bg-fill $wallpaper
 set $lock ~/.config/i3/lock.sh
 exec --no-startup-id xss-lock --transfer-sleep-lock -- $lock
 
-exec --no-startup-id picom --config ~/.config/picom/conf
-
+exec --no-startup-id lxqt-policykit-agent
 floating_modifier $mod
 
 bindsym $mod+Return exec --no-startup-id $terminal
