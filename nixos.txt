@@ -21,7 +21,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.blacklistedKernelModules = [ "nouveau" ];
-  boot.kernelPackages = pkgs.linuxPackages;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = [ "quiet" "nvidia-drm.modeset=1" ];
   boot.kernel.sysctl = { "vm.overcommit_memory" = 1;  };
   
@@ -91,7 +91,6 @@
   services.locate.enable = false;
   services.dbus.enable = true;
   services.udisks2.enable = true;
-  services.gvfs.enable = true;
   services.printing.enable = false;
   services.power-profiles-daemon.enable = true;
   services.thermald.enable = true;
@@ -160,6 +159,7 @@
   environment.systemPackages = with pkgs; [
 
    # Core
+   lxqt.lxqt-policykit
    alsa-utils
    brightnessctl
    git
