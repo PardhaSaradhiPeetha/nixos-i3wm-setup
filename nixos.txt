@@ -160,6 +160,7 @@
   environment.systemPackages = with pkgs; [
 
    # Core
+   alsa-utils
    brightnessctl
    git
    curl
