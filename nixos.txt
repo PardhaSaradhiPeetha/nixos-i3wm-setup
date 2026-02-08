@@ -21,11 +21,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.blacklistedKernelModules = [ "nouveau" ];
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_6_6;
   boot.kernelParams = [ "quiet" "nvidia-drm.modeset=1" ];
-  boot.kernel.sysctl = { "vm.overcommit_memory" = 1;  };
-  
-  systemd.oomd.enable = true;
+  powerManagement.cpuFreqGovernor = "schedutil";
       
   networking.hostName = "loq";
   networking.networkmanager.enable = true;
@@ -46,6 +44,7 @@
     dates = "weekly";
     options = "--delete-older-than 3d";
   };
+  
   nix.settings = {
     auto-optimise-store = true;
     max-jobs = "auto";
@@ -73,28 +72,6 @@
     };
   };
 
-  services.libinput = {
-    enable = true;
-    touchpad.tapping = true;
-  };
-
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-    alsa.enable = true;
-    wireplumber.enable = true;
-  };
-
-  security.rtkit.enable = true;
-  security.polkit.enable = true;
-
-  services.locate.enable = false;
-  services.dbus.enable = true;
-  services.udisks2.enable = true;
-  services.printing.enable = false;
-  services.power-profiles-daemon.enable = true;
-  services.thermald.enable = true;
-
   services.logind.settings.Login = {
     IdleAction = "suspend";
     IdleActionSec = "5min";
@@ -103,9 +80,31 @@
     HandleLidSwitchExternalPower = "ignore";
   };
 
+  services.libinput = {
+    enable = true;
+    touchpad.tapping = true;
+  };
+
+  services.pulseaudio.enable = false;
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    wireplumber.enable = true;
+  };
+
+  security.rtkit.enable = true;
+  
+  security.polkit.enable = true;
+  services.locate.enable = false;
+  services.dbus.enable = true;
+  services.udisks2.enable = true;
+  services.printing.enable = false;
+
   services.journald.extraConfig = ''
-    SystemMaxUse=30M
-    RuntimeMaxUse=20M
+    SystemMaxUse=20M
+    RuntimeMaxUse=10M
   '';
 
   hardware.bluetooth.enable = true;
@@ -146,6 +145,7 @@
   };
 
   programs.nano.enable = false;
+  programs.vim.enable = false;
   environment.variables = {
     EDITOR = "micro";
     VISUAL = "micro";
@@ -159,7 +159,6 @@
 
    # Core
    lxqt.lxqt-policykit
-   alsa-utils
    brightnessctl
    git
    curl
